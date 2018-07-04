@@ -18,6 +18,8 @@ stepsbyday <- aggregate(steps~date,rm.na=TRUE,data=activity,FUN=sum)
 aggregate(steps ~ date, data = activity, FUN = mean)
 aggregate(steps ~ date, data = activity, FUN = median)
 
+mean=10766.19, median=10765.
+
 ## What is the average daily activity pattern?
 
 plot(aggregate(steps ~ interval, data = activity, FUN = mean), type = "l")
