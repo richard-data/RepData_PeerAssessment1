@@ -1,0 +1,82 @@
+---
+title: "PA1_Template"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```
+#Preprocessing
+
+x<-read.csv("activity.csv")
+head(x,5)
+cleanx<-x[!is.na(x$steps),]
+
+#Mean Steps & Hist
+sumx<-aggregate(x$steps ~ x$date, FUN=sum,)
+hist(sumx$`x$steps`,breaks=5,xlab="Steps",main="Steps Per Day")
+
+#Mean and Media
+as.integer(mean(sumx$`x$steps`))
+as.integer(median(sumx$`x$steps`))
+
+#Avg daily pattern
+cleanx2<-x[!is.na(x$steps),] #remove NAs
+
+install.packages("plyr")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("lattice")
+install.packages("knitr")
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(lattice)
+library(knitr)
+
+intervals<-ddply(cleanx2, .(interval), summarize, Avg = mean(steps))
+
+plot<-ggplot(intervals,aes(x=interval,y=Avg),xlab="Intervals",ylab="Avg Cnt of Steps")
+plot + geom_line() +ggtitle("Avg Steps PEr Interval")
+
+maxsteps<-max(intervals$Avg)
+intervals[intervals$Avg==maxsteps,1]
+
+#Missing values -- avg steps per day
+avg<-ddply(cleanx2,.(as.character(date)),summarize, avg= mean(steps))
+NAs<-x[is.na(x$steps),]
+NAs2<-as.character(NAs$date)
+comb <- merge(NAs2,avg,by.x="chr",by.y="date")
+
+newx3<-comb[,c("avg","date","interval")]
+colnames(newx3)<-c("steps","date","interval")
+finalset<-rbind(cleanx2,newx3)
+fix(finalset)
+
+#Mean, Median, and Hist of Fake Dataset
+hist(finalset$steps,breaks=5,xlab="Steps",main="Steps Per Day")
+
+as.integer(mean(finalset$steps))
+as.integer(median(finalset$steps))
+
+#weekdays
+weekset<-weekdays(as.Date(finalset$date))
+weekset<-ifelse(weekset %in% c("Saturday","Sunday"),"Weekend","Weekday")
+finalset3<-ddply(finalset,.(interval),summarize,avg=mean(steps))
+xyplot(avg~interval|weekset,data=finalset3,type="1",layout=c(1,2))
+```
+
+## Including Plots
+
+
+```
+plot<-ggplot(intervals,aes(x=interval,y=Avg),xlab="Intervals",ylab="Avg Cnt of Steps")
+plot + geom_line() +ggtitle("Avg Steps PEr Interval")
+
+xyplot(avg~interval|weekset,data=finalset3,type="1",layout=c(1,2))
+```
+
